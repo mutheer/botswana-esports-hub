@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gamepad2, Facebook, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,18 +28,27 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Gamepad2 className="h-8 w-8 text-primary" />
+              <img src="/logo.svg" alt="BESF Logo" className="h-10 w-10" />
               <span className="font-bold text-xl">BESF</span>
             </div>
             <p className="text-background/80 text-sm">
               Botswana Electronic Sports Federation - Promoting and developing esports in Botswana.
             </p>
             <div className="flex space-x-4">
-              <Button variant="ghost" size="icon" className="text-background hover:text-primary">
-                <Facebook className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
+                <a href="https://facebook.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                  <Facebook className="h-5 w-5" />
+                </a>
               </Button>
-              <Button variant="ghost" size="icon" className="text-background hover:text-primary">
-                <Twitter className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
+                <a href="https://twitter.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                  <Twitter className="h-5 w-5" />
+                </a>
+              </Button>
+              <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
+                <a href="https://instagram.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                  <Instagram className="h-5 w-5" />
+                </a>
               </Button>
             </div>
           </div>

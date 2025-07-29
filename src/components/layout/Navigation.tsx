@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Gamepad2 } from "lucide-react";
+import { Menu, X, User, LogOut, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, signOut, isAdmin } = useAuth();
 
   const navigationItems = [
     { name: "Home", href: "/" },
@@ -27,7 +29,7 @@ const Navigation = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Gamepad2 className="h-8 w-8 text-primary" />
+              <img src="/logo.svg" alt="BESF Logo" className="h-10 w-10" />
               <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
                 BESF
               </span>
@@ -49,9 +51,32 @@ const Navigation = () => {
                 {item.name}
               </Link>
             ))}
-            <Button variant="hero" size="sm" asChild>
-              <Link to="/auth">Login</Link>
-            </Button>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/profile" className="flex items-center space-x-1">
+                    <User className="h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </Button>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin" className="flex items-center space-x-1">
+                      <Shield className="h-4 w-4" />
+                      <span>Admin</span>
+                    </Link>
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={signOut} className="flex items-center space-x-1">
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </Button>
+              </div>
+            ) : (
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/auth">Login</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -85,9 +110,32 @@ const Navigation = () => {
                 </Link>
               ))}
               <div className="px-3 py-2">
-                <Button variant="hero" size="sm" className="w-full" asChild>
-                  <Link to="/auth">Login</Link>
-                </Button>
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                      <Link to="/profile" className="flex items-center space-x-2">
+                        <User className="h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        signOut();
+                        setIsOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      <span>Logout</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="hero" size="sm" className="w-full" asChild>
+                    <Link to="/auth">Login</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

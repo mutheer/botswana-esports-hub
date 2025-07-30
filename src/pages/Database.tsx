@@ -47,7 +47,7 @@ const Database = () => {
     fetchGames();
   }, []);
 
-  // Fetch total number of gamers
+  // Fetch total number of gamers and initial preview
   useEffect(() => {
     const fetchTotalGamers = async () => {
       const { count, error } = await supabase
@@ -63,6 +63,8 @@ const Database = () => {
     };
 
     fetchTotalGamers();
+    // Load initial preview of all gamers
+    searchGamers();
   }, []);
 
   // Search gamers based on filters
@@ -70,12 +72,12 @@ const Database = () => {
     setIsLoading(true);
 
     try {
-      // Base query to get gamers
+      // Base query to get gamers in alphabetical order
       let query = supabase.from("gamers").select(`
         id, 
         name, 
         surname
-      `);
+      `).order("name").order("surname");
 
       // Apply name search filter if provided
       if (searchTerm) {
@@ -297,7 +299,7 @@ const Database = () => {
                   <p className="text-muted-foreground">
                     {searchTerm || (selectedGame && selectedGame !== "all")
                       ? "No gamers found matching your search criteria."
-                      : "Use the search filters above to find gamers."}
+                      : "No gamers registered yet."}
                   </p>
                   {(searchTerm || (selectedGame && selectedGame !== "all")) && (
                     <Button
@@ -305,7 +307,7 @@ const Database = () => {
                       onClick={clearFilters}
                       className="mt-2"
                     >
-                      Clear filters and try again
+                      Clear filters and view all gamers
                     </Button>
                   )}
                 </div>

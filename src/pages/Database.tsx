@@ -3,11 +3,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+// Remove duplicate import since it's already imported at the bottom of the imports
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext"; // Assuming this exists from AdminDashboard
 
 interface Gamer {
   id: string;
@@ -24,7 +27,7 @@ const Database = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGame, setSelectedGame] = useState<string>("");
   const [games, setGames] = useState<{ id: string; name: string }[]>([]);
-  const [gamers, setGamers] = useState<Gamer[]>([]);
+  const [searchResults, setSearchResults] = useState<Gamer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalGamers, setTotalGamers] = useState(0);
 
@@ -129,9 +132,9 @@ const Database = () => {
           }
         }
 
-        setGamers(gamersWithGames);
+        setGames(gamersWithGames);
       } else {
-        setGamers([]);
+        setGames([]);
       }
     } catch (error) {
       console.error("Error searching gamers:", error);
@@ -153,168 +156,42 @@ const Database = () => {
     searchGamers();
   };
 
+  // Inside the component
+  const { user } = useAuth(); // Get current user
+  
+  const { data: gamers, error } = useQuery({
+    queryKey: ['gamers'],
+    queryFn: async () => {
+      if (!user) throw new Error('Authentication required');
+      const { data, error } = await supabase.from('gamers').select('*');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user, // Only run if user is logged in
+  });
+  
+  if (error) {
+    return <div>Error loading gamers: {error.message}</div>;
+  }
+
   return (
-    <Layout>
-      <div className="min-h-screen py-12 bg-gradient-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Gamer Database</h1>
-            <p className="text-xl text-muted-foreground">
-              Search and discover registered gamers in Botswana
-            </p>
-          </div>
-
-          <Card className="shadow-elegant mb-8">
-            <CardHeader>
-              <CardTitle>Search Filters</CardTitle>
-              <CardDescription>
-                Find gamers by name or filter by game
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSearch} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Name Search */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Name Search</label>
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search by name or surname"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-8"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Game Filter */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Game</label>
-                    <Select
-                      value={selectedGame}
-                      onValueChange={setSelectedGame}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="All Games" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">All Games</SelectItem>
-                        {games.map((game) => (
-                          <SelectItem key={game.id} value={game.id}>
-                            {game.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Search Buttons */}
-                  <div className="flex items-end space-x-2">
-                    <Button type="submit" className="flex-1" disabled={isLoading}>
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Searching...
-                        </>
-                      ) : (
-                        "Search"
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={clearFilters}
-                      disabled={isLoading}
-                    >
-                      Clear
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Results Section */}
-          <Card className="shadow-card">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Results</CardTitle>
-                <Badge variant="outline" className="text-sm">
-                  Total Registered: {totalGamers}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : gamers.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Games</TableHead>
-                        <TableHead>Gamer IDs</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {gamers.map((gamer) => (
-                        <TableRow key={gamer.id}>
-                          <TableCell className="font-medium">
-                            {gamer.name} {gamer.surname}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {gamer.games.map((game) => (
-                                <Badge key={game.id} variant="outline">
-                                  {game.name}
-                                </Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
-                              {gamer.games.map((game) => (
-                                <div key={game.id} className="text-sm">
-                                  <span className="font-medium">{game.name}:</span>{" "}
-                                  <span className="text-muted-foreground">
-                                    {game.gamer_id_for_game}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">
-                    {searchTerm || selectedGame
-                      ? "No gamers found matching your search criteria."
-                      : "Use the search filters above to find gamers."}
-                  </p>
-                  {(searchTerm || selectedGame) && (
-                    <Button
-                      variant="link"
-                      onClick={clearFilters}
-                      className="mt-2"
-                    >
-                      Clear filters and try again
-                    </Button>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </Layout>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Surname</TableHead>
+          {/* Add more headers */}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {gamers?.map(gamer => (
+          <TableRow key={gamer.id}>
+            <TableCell>{gamer.name}</TableCell>
+            <TableCell>{gamer.surname}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

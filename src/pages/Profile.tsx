@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import Layout from "@/components/layout/Layout";
 import { Loader2, User, Shield } from "lucide-react";
 
@@ -14,52 +15,37 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    username: "",
-    first_name: "",
-    last_name: "",
-  });
+  const [formData, setFormData] = useState({ username: "", first_name: "", last_name: "" });
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     const fetchUserAndProfile = async () => {
       try {
-        // Get current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
-          throw new Error("Not authenticated");
-        }
-        
+        if (userError || !user) throw new Error("Not authenticated");
         setUser(user);
-        
-        // Get user profile
-        const { data: profile, error: profileError } = await supabase
+
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_id', user.id)
           .single();
-        
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError;
-        }
-        
-        if (profile) {
-          setProfile(profile);
+
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+        if (profileData) {
+          setProfile(profileData);
           setFormData({
-            username: profile.username || "",
-            first_name: profile.first_name || "",
-            last_name: profile.last_name || "",
+            username: profileData.username || "",
+            first_name: profileData.first_name || "",
+            last_name: profileData.last_name || "",
           });
         }
       } catch (error: any) {
         console.error('Error fetching user data:', error);
-        toast({
-          title: "Authentication Error",
-          description: "Please log in to view your profile",
-          variant: "destructive",
-        });
+        toast({ title: "Authentication Error", description: "Please log in to view your profile", variant: "destructive" });
         navigate("/auth");
       } finally {
         setIsLoading(false);

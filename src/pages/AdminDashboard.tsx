@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Plus, Pencil, Trash2, Users, GamepadIcon, CalendarDays, Newspaper } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -645,3 +645,13 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+const handleCreateEvent = async (eventData: { title: string; date: string; status: string }) => {
+  const { error } = await supabase.from('events').insert(eventData);
+  if (error) {
+    const { toast } = useToast();
+    toast({ title: "Error", description: error.message, variant: "destructive" });
+  }
+  else { toast({ title: "Success", description: "Event created." }); }
+};
+// Add a form in the events tab

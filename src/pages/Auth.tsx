@@ -85,6 +85,18 @@ const Auth = () => {
     }
   };
 
+  const handlePasswordReset = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Success", description: "Password reset email sent." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   return (
     <Layout>
       <div className="min-h-screen py-12 bg-gradient-card">
@@ -122,6 +134,10 @@ const Auth = () => {
                         <Label htmlFor="login-password">Password</Label>
                         <Button variant="link" className="p-0 h-auto text-sm">
                           Forgot password?
+                        </Button>
+                        // In the login form, add a button:
+                        <Button variant="link" onClick={() => handlePasswordReset(loginData.email)}>
+                          Reset Password
                         </Button>
                       </div>
                       <Input

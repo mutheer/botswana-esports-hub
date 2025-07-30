@@ -22,7 +22,7 @@ interface Gamer {
 
 const Database = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGame, setSelectedGame] = useState<string>("");
+  const [selectedGame, setSelectedGame] = useState<string>("all");
   const [games, setGames] = useState<{ id: string; name: string }[]>([]);
   const [gamers, setGamers] = useState<Gamer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +105,7 @@ const Database = () => {
             .eq("gamer_id", gamer.id);
 
           // If a game filter is applied
-          if (selectedGame) {
+          if (selectedGame && selectedGame !== "all") {
             gamerGamesQuery = gamerGamesQuery.eq("game_id", selectedGame);
           }
 
@@ -114,7 +114,7 @@ const Database = () => {
           if (gamerGamesError) throw gamerGamesError;
 
           // Only include gamers who have games matching the filter (if any)
-          if (!selectedGame || (gamerGames && gamerGames.length > 0)) {
+          if (!selectedGame || selectedGame === "all" || (gamerGames && gamerGames.length > 0)) {
             // Format the games data
             const formattedGames = gamerGames?.map((gg) => ({
               id: gg.game_id,
@@ -149,7 +149,7 @@ const Database = () => {
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedGame("");
+    setSelectedGame("all");
     searchGamers();
   };
 
@@ -199,7 +199,7 @@ const Database = () => {
                         <SelectValue placeholder="All Games" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Games</SelectItem>
+                        <SelectItem value="all">All Games</SelectItem>
                         {games.map((game) => (
                           <SelectItem key={game.id} value={game.id}>
                             {game.name}
@@ -295,11 +295,11 @@ const Database = () => {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">
-                    {searchTerm || selectedGame
+                    {searchTerm || (selectedGame && selectedGame !== "all")
                       ? "No gamers found matching your search criteria."
                       : "Use the search filters above to find gamers."}
                   </p>
-                  {(searchTerm || selectedGame) && (
+                  {(searchTerm || (selectedGame && selectedGame !== "all")) && (
                     <Button
                       variant="link"
                       onClick={clearFilters}

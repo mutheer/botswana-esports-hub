@@ -7,12 +7,13 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import Register from "./pages/Register";
+import GameRegistration from "./pages/GameRegistration";
 import Database from "./pages/Database";
 import Games from "./pages/Games";
 import Events from "./pages/Events";
 import News from "./pages/News";
-import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
+import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register-games" element={<ProtectedRoute><GameRegistration /></ProtectedRoute>} />
           <Route path="/database" element={<Database />} />
           <Route path="/games" element={<Games />} />
           <Route path="/events" element={<Events />} />

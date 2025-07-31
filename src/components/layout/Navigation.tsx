@@ -9,7 +9,7 @@ const Navigation = () => {
   const location = useLocation();
   const { isAuthenticated, signOut, isAdmin } = useAuth();
 
-  const navigationItems = [
+  const allNavigationItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Register", href: "/register" },
@@ -19,6 +19,11 @@ const Navigation = () => {
     { name: "News", href: "/news" },
     { name: "Contact", href: "/contact" },
   ];
+
+  // Filter out Register page for unauthenticated users
+  const navigationItems = isAuthenticated 
+    ? allNavigationItems 
+    : allNavigationItems.filter(item => item.name !== "Register");
 
   const isActive = (path: string) => location.pathname === path;
 

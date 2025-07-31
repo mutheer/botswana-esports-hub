@@ -4,10 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const handleNewsletterSignup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,11 +64,13 @@ const Footer = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link to="/register" className="text-background/80 hover:text-primary transition-smooth">
-                  Register
-                </Link>
-              </li>
+              {isAuthenticated && (
+                <li>
+                  <Link to="/register" className="text-background/80 hover:text-primary transition-smooth">
+                    Register
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link to="/events" className="text-background/80 hover:text-primary transition-smooth">
                   Events

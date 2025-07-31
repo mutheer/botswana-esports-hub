@@ -1,0 +1,5 @@
+[33m3da7dc5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Apply security best practices
+[33m207fb3b[m Add RLS policies and functions
+[33mef219a0[m Run SQL migration
+[33mfdd84c7[m Run user role migration
+[33mdff0c96[m Refactor Database page

@@ -25,7 +25,7 @@ interface Gamer {
 
 const Database = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGame, setSelectedGame] = useState<string>("");
+  const [selectedGame, setSelectedGame] = useState<string>("all");
   const [games, setGames] = useState<{ id: string; name: string }[]>([]);
   const [searchResults, setSearchResults] = useState<Gamer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,8 +107,8 @@ const Database = () => {
             `)
             .eq("gamer_id", gamer.id);
 
-          // If a game filter is applied
-          if (selectedGame) {
+          // If a game filter is applied (not "all")
+          if (selectedGame && selectedGame !== "all") {
             gamerGamesQuery = gamerGamesQuery.eq("game_id", selectedGame);
           }
 
@@ -117,7 +117,7 @@ const Database = () => {
           if (gamerGamesError) throw gamerGamesError;
 
           // Only include gamers who have games matching the filter (if any)
-          if (!selectedGame || (gamerGames && gamerGames.length > 0)) {
+          if (selectedGame === "all" || !selectedGame || (gamerGames && gamerGames.length > 0)) {
             // Format the games data
             const formattedGames = gamerGames?.map((gg) => ({
               id: gg.game_id,
@@ -152,7 +152,7 @@ const Database = () => {
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedGame("");
+    setSelectedGame("all");
     setSearchResults([]);
     searchGamers();
   };
@@ -200,7 +200,7 @@ const Database = () => {
                       <SelectValue placeholder="Filter by game" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Games</SelectItem>
+                      <SelectItem value="all">All Games</SelectItem>
                       {games.map((game) => (
                         <SelectItem key={game.id} value={game.id}>
                           {game.name}
@@ -233,59 +233,107 @@ const Database = () => {
         </Card>
 
         {/* Results */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {searchResults.length > 0 ? (
-            <div className="grid gap-4">
-              {searchResults.map((gamer) => (
-                <Card key={gamer.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {gamer.name} {gamer.surname}
-                        </h3>
-                        <div className="mt-2">
-                          <p className="text-sm text-muted-foreground mb-2">
-                            Games played:
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {gamer.games.length > 0 ? (
-                              gamer.games.map((game) => (
-                                <Badge key={game.id} variant="secondary">
-                                  {game.name}
+            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">
+                  {searchResults.length} Player{searchResults.length !== 1 ? 's' : ''} Found
+                </h2>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {searchResults.map((gamer) => (
+                  <Card key={gamer.id} className="group hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        {/* Player Info */}
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/60 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span className="text-xl font-bold text-primary-foreground">
+                              {gamer.name.charAt(0)}{gamer.surname.charAt(0)}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {gamer.name} {gamer.surname}
+                          </h3>
+                        </div>
+
+                        {/* Games Section */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              Games Played
+                            </span>
+                            <Badge variant="secondary" className="text-xs">
+                              {gamer.games.length}
+                            </Badge>
+                          </div>
+                          
+                          {gamer.games.length > 0 ? (
+                            <div className="space-y-2">
+                              {gamer.games.slice(0, 3).map((game) => (
+                                <div key={game.id} className="flex items-center justify-between p-2 bg-accent/50 rounded-lg">
+                                  <span className="text-sm font-medium text-foreground">
+                                    {game.name}
+                                  </span>
                                   {game.gamer_id_for_game && (
-                                    <span className="ml-2 text-xs opacity-75">
-                                      ID: {game.gamer_id_for_game}
-                                    </span>
+                                    <code className="text-xs bg-background/80 px-2 py-1 rounded text-muted-foreground">
+                                      {game.gamer_id_for_game}
+                                    </code>
                                   )}
-                                </Badge>
-                              ))
-                            ) : (
+                                </div>
+                              ))}
+                              {gamer.games.length > 3 && (
+                                <div className="text-center">
+                                  <Badge variant="outline" className="text-xs">
+                                    +{gamer.games.length - 3} more
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4">
+                              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
+                                <span className="text-xs text-muted-foreground">?</span>
+                              </div>
                               <span className="text-sm text-muted-foreground">
                                 No games registered
                               </span>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           ) : isLoading ? (
-            <div className="text-center py-8">
-              <Loader2 className="mx-auto h-8 w-8 animate-spin" />
-              <p className="mt-2 text-muted-foreground">Loading players...</p>
+            <div className="text-center py-12">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+              <p className="mt-4 text-muted-foreground">Searching players...</p>
             </div>
           ) : (
-            <Card>
-              <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">
-                  {searchTerm || selectedGame
-                    ? "No players found matching your search criteria."
-                    : "Use the search form above to find players."}
+            <Card className="border-dashed">
+              <CardContent className="text-center py-12">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">
+                  {searchTerm || (selectedGame && selectedGame !== "all")
+                    ? "No players found"
+                    : "Discover Players"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm || (selectedGame && selectedGame !== "all")
+                    ? "Try adjusting your search criteria to find more players."
+                    : "Use the search form above to find players in our community."}
                 </p>
+                {(searchTerm || (selectedGame && selectedGame !== "all")) && (
+                  <Button variant="outline" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}

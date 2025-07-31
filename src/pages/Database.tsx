@@ -156,9 +156,6 @@ const Database = () => {
     searchGamers();
   };
 
-  // Inside the component
-  const { user } = useAuth(); // Get current user
-  
   const { data: gamers, error } = useQuery({
     queryKey: ['gamers'],
     queryFn: async () => {
@@ -196,3 +193,10 @@ const Database = () => {
 };
 
 export default Database;
+const { user } = useAuth();
+const DatabasePage = () => {
+  const { user } = useAuth();
+  if (!user) {
+    return <div>Please log in to search players.</div>;
+  }
+};

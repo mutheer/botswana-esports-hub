@@ -55,7 +55,7 @@ const Profile = () => {
     fetchUserAndProfile();
   }, [navigate, toast]);
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 

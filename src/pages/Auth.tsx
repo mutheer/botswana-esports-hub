@@ -60,16 +60,21 @@ const Auth = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-
       if (error) throw error;
-
+      // Insert profile with default role
+      const { error: profileError } = await supabase.from('profiles').insert({
+        user_id: data.user.id,
+        role: 'user',
+        // Add other defaults
+      });
+      if (profileError) throw profileError;
       toast({
         title: "Signup successful",
         description: "Please check your email to verify your account",
@@ -132,10 +137,6 @@ const Auth = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="login-password">Password</Label>
-                        <Button variant="link" className="p-0 h-auto text-sm">
-                          Forgot password?
-                        </Button>
-                        // In the login form, add a button:
                         <Button variant="link" onClick={() => handlePasswordReset(loginData.email)}>
                           Reset Password
                         </Button>

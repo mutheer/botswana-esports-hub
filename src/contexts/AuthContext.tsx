@@ -56,14 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user || null);
 
         if (session?.user) {
-          // Check if user is admin
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('user_id', session.user.id)
-            .single();
-
-          setIsAdmin(profileData?.role === 'admin');
+          const { data } = await supabase.from('profiles').select('role').eq('user_id', session.user.id).single();
+          setIsAdmin(data?.role === 'admin');
         } else {
           setIsAdmin(false);
         }

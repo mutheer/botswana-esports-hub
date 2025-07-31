@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { Calendar, MapPin, Trophy, Users, ArrowRight, Filter } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Layout from "@/components/layout/Layout";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Event {
   id: string;
@@ -274,3 +276,11 @@ const Events = () => {
 };
 
 export default Events;
+
+const handleRegister = async (eventId) => {
+  const { user } = useAuth();
+  if (!user) return; // Redirect to login
+  await supabase.from('user_events').insert({ user_id: user.id, event_id: eventId });
+  // Toast success, update profile
+};
+// Add button: <Button onClick={() => handleRegister(event.id)}>Register</Button>

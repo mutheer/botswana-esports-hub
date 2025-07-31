@@ -68,13 +68,15 @@ const Auth = () => {
         },
       });
       if (error) throw error;
-      // Insert profile with default role
-      const { error: profileError } = await supabase.from('profiles').insert({
-        user_id: data.user.id,
-        role: 'user',
-        // Add other defaults
-      });
-      if (profileError) throw profileError;
+      // Insert profile with default role and required username
+      if (data.user) {
+        const { error: profileError } = await supabase.from('profiles').insert({
+          user_id: data.user.id,
+          username: data.user.email?.split('@')[0] || `user_${Date.now()}`,
+          role: 'user',
+        });
+        if (profileError) console.error('Profile creation error:', profileError);
+      }
       toast({
         title: "Signup successful",
         description: "Please check your email to verify your account",

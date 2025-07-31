@@ -277,10 +277,4 @@ const Events = () => {
 
 export default Events;
 
-const handleRegister = async (eventId) => {
-  const { user } = useAuth();
-  if (!user) return; // Redirect to login
-  await supabase.from('user_events').insert({ user_id: user.id, event_id: eventId });
-  // Toast success, update profile
-};
-// Add button: <Button onClick={() => handleRegister(event.id)}>Register</Button>
+// Event registration will be implemented after database migration

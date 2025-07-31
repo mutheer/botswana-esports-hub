@@ -132,9 +132,9 @@ const Database = () => {
           }
         }
 
-        setGames(gamersWithGames);
+        setSearchResults(gamersWithGames);
       } else {
-        setGames([]);
+        setSearchResults([]);
       }
     } catch (error) {
       console.error("Error searching gamers:", error);
@@ -153,50 +153,146 @@ const Database = () => {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedGame("");
+    setSearchResults([]);
     searchGamers();
   };
 
-  const { data: gamers, error } = useQuery({
-    queryKey: ['gamers'],
-    queryFn: async () => {
-      if (!user) throw new Error('Authentication required');
-      const { data, error } = await supabase.from('gamers').select('*');
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user, // Only run if user is logged in
-  });
-  
-  if (error) {
-    return <div>Error loading gamers: {error.message}</div>;
-  }
+  // Load all gamers on component mount for preview
+  useEffect(() => {
+    searchGamers();
+  }, []);
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Surname</TableHead>
-          {/* Add more headers */}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {gamers?.map(gamer => (
-          <TableRow key={gamer.id}>
-            <TableCell>{gamer.name}</TableCell>
-            <TableCell>{gamer.surname}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Layout>
+      <div className="container mx-auto py-8 px-4">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Player Database</h1>
+          <p className="text-muted-foreground">
+            Search and discover players in our community. Total players: {totalGamers}
+          </p>
+        </div>
+
+        {/* Search Form */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search Players
+            </CardTitle>
+            <CardDescription>
+              Find players by name or filter by the games they play
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Input
+                    placeholder="Search by name or surname..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <Select value={selectedGame} onValueChange={setSelectedGame}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by game" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Games</SelectItem>
+                      {games.map((game) => (
+                        <SelectItem key={game.id} value={game.id}>
+                          {game.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-4 w-4" />
+                      Search
+                    </>
+                  )}
+                </Button>
+                <Button type="button" variant="outline" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Results */}
+        <div className="space-y-4">
+          {searchResults.length > 0 ? (
+            <div className="grid gap-4">
+              {searchResults.map((gamer) => (
+                <Card key={gamer.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">
+                          {gamer.name} {gamer.surname}
+                        </h3>
+                        <div className="mt-2">
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Games played:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {gamer.games.length > 0 ? (
+                              gamer.games.map((game) => (
+                                <Badge key={game.id} variant="secondary">
+                                  {game.name}
+                                  {game.gamer_id_for_game && (
+                                    <span className="ml-2 text-xs opacity-75">
+                                      ID: {game.gamer_id_for_game}
+                                    </span>
+                                  )}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-sm text-muted-foreground">
+                                No games registered
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : isLoading ? (
+            <div className="text-center py-8">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+              <p className="mt-2 text-muted-foreground">Loading players...</p>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <p className="text-muted-foreground">
+                  {searchTerm || selectedGame
+                    ? "No players found matching your search criteria."
+                    : "Use the search form above to find players."}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </Layout>
   );
 };
 
 export default Database;
-const { user } = useAuth();
-const DatabasePage = () => {
-  const { user } = useAuth();
-  if (!user) {
-    return <div>Please log in to search players.</div>;
-  }
-};

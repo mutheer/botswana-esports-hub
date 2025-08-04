@@ -395,6 +395,13 @@ export type Database = {
         }
         Returns: string
       }
+      update_user_role: {
+        Args: {
+          target_user_id: string
+          new_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       user_role: "admin" | "user" | "moderator"

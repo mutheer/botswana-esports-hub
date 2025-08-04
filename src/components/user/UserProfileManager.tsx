@@ -10,6 +10,8 @@ import { User, Save, Shield, Activity } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UserGameRegistration from './UserGameRegistration';
 import UserEventRegistration from './UserEventRegistration';
+import { profileUpdateSchema, rateLimiter } from '@/lib/validation';
+import { z } from 'zod';
 
 interface Profile {
   id: string;
@@ -54,7 +56,7 @@ export default function UserProfileManager() {
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching profile:', error);
@@ -91,14 +93,28 @@ export default function UserProfileManager() {
     e.preventDefault();
     if (!user || !profile) return;
 
-    setIsLoading(true);
     try {
+      setIsLoading(true);
+      
+      // Validate and sanitize input
+      const validatedData = profileUpdateSchema.parse(formData);
+      
+      // Check rate limiting
+      if (rateLimiter.isRateLimited(`profile_update_${user.id}`, 3, 60000)) {
+        toast({
+          title: "Rate Limited",
+          description: "Too many profile updates. Please wait a minute before trying again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const { error } = await supabase
         .from('profiles')
         .update({
-          username: formData.username,
-          first_name: formData.first_name || null,
-          last_name: formData.last_name || null,
+          username: validatedData.username,
+          first_name: validatedData.first_name || null,
+          last_name: validatedData.last_name || null,
         })
         .eq('user_id', user.id);
 
@@ -110,7 +126,7 @@ export default function UserProfileManager() {
         p_action: 'profile_updated',
         p_resource_type: 'profile',
         p_resource_id: profile.id,
-        p_details: formData
+        p_details: validatedData
       });
 
       await fetchProfile();
@@ -123,7 +139,14 @@ export default function UserProfileManager() {
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      if (error.code === '23505') {
+      
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error", 
+          description: error.errors[0]?.message || "Invalid input data",
+          variant: "destructive",
+        });
+      } else if (error.code === '23505') {
         toast({
           title: "Username Taken",
           description: "This username is already taken. Please choose another.",
@@ -132,7 +155,7 @@ export default function UserProfileManager() {
       } else {
         toast({
           title: "Error",
-          description: "Failed to update profile.",
+          description: "Failed to update profile. Please try again.",
           variant: "destructive",
         });
       }

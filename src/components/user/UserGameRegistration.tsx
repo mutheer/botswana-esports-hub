@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Gamepad2, Plus, Trash2, Edit } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { gameRegistrationSchema, rateLimiter } from '@/lib/validation';
+import { z } from 'zod';
 
 interface Game {
   id: string;
@@ -96,25 +98,63 @@ export default function UserGameRegistration() {
   const handleRegisterGame = async () => {
     if (!user || !selectedGame) return;
 
-    setIsLoading(true);
     try {
-      const { error } = await supabase.from('user_games').insert({
-        user_id: user.id,
-        game_id: selectedGame,
-        gamer_tag: gamerTag || null,
-        skill_level: skillLevel,
-      });
+      setIsLoading(true);
+      
+      // Validate input if gamer tag is provided
+      if (gamerTag) {
+        const validatedData = gameRegistrationSchema.parse({
+          gamer_tag: gamerTag,
+          skill_level: skillLevel,
+        });
+        
+        // Check rate limiting
+        if (rateLimiter.isRateLimited(`game_register_${user.id}`, 5, 60000)) {
+          toast({
+            title: "Rate Limited",
+            description: "Too many game registrations. Please wait a minute before trying again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        const { error } = await supabase.from('user_games').insert({
+          user_id: user.id,
+          game_id: selectedGame,
+          gamer_tag: validatedData.gamer_tag || null,
+          skill_level: validatedData.skill_level,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Log activity
-      await supabase.rpc('log_user_activity', {
-        p_user_id: user.id,
-        p_action: 'game_registered',
-        p_resource_type: 'game',
-        p_resource_id: selectedGame,
-        p_details: { gamer_tag: gamerTag, skill_level: skillLevel }
-      });
+        // Log activity
+        await supabase.rpc('log_user_activity', {
+          p_user_id: user.id,
+          p_action: 'game_registered',
+          p_resource_type: 'game',
+          p_resource_id: selectedGame,
+          p_details: { gamer_tag: validatedData.gamer_tag, skill_level: validatedData.skill_level }
+        });
+      } else {
+        // No validation needed if no gamer tag
+        const { error } = await supabase.from('user_games').insert({
+          user_id: user.id,
+          game_id: selectedGame,
+          gamer_tag: null,
+          skill_level: skillLevel,
+        });
+
+        if (error) throw error;
+
+        // Log activity
+        await supabase.rpc('log_user_activity', {
+          p_user_id: user.id,
+          p_action: 'game_registered',
+          p_resource_type: 'game',
+          p_resource_id: selectedGame,
+          p_details: { skill_level: skillLevel }
+        });
+      }
 
       await fetchUserGames();
       setSelectedGame('');
@@ -127,11 +167,20 @@ export default function UserGameRegistration() {
       });
     } catch (error) {
       console.error('Error registering game:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add game to your profile.",
-        variant: "destructive",
-      });
+      
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0]?.message || "Invalid input data",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add game to your profile. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -140,27 +189,56 @@ export default function UserGameRegistration() {
   const handleUpdateGame = async () => {
     if (!user || !editingGame) return;
 
-    setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from('user_games')
-        .update({
-          gamer_tag: gamerTag || null,
+      setIsLoading(true);
+      
+      // Validate input if gamer tag is provided
+      if (gamerTag) {
+        const validatedData = gameRegistrationSchema.parse({
+          gamer_tag: gamerTag,
           skill_level: skillLevel,
-        })
-        .eq('id', editingGame.id)
-        .eq('user_id', user.id);
+        });
+        
+        const { error } = await supabase
+          .from('user_games')
+          .update({
+            gamer_tag: validatedData.gamer_tag || null,
+            skill_level: validatedData.skill_level,
+          })
+          .eq('id', editingGame.id)
+          .eq('user_id', user.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Log activity
-      await supabase.rpc('log_user_activity', {
-        p_user_id: user.id,
-        p_action: 'game_updated',
-        p_resource_type: 'game',
-        p_resource_id: editingGame.game_id,
-        p_details: { gamer_tag: gamerTag, skill_level: skillLevel }
-      });
+        // Log activity
+        await supabase.rpc('log_user_activity', {
+          p_user_id: user.id,
+          p_action: 'game_updated',
+          p_resource_type: 'game',
+          p_resource_id: editingGame.game_id,
+          p_details: { gamer_tag: validatedData.gamer_tag, skill_level: validatedData.skill_level }
+        });
+      } else {
+        const { error } = await supabase
+          .from('user_games')
+          .update({
+            gamer_tag: null,
+            skill_level: skillLevel,
+          })
+          .eq('id', editingGame.id)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        // Log activity
+        await supabase.rpc('log_user_activity', {
+          p_user_id: user.id,
+          p_action: 'game_updated',
+          p_resource_type: 'game',
+          p_resource_id: editingGame.game_id,
+          p_details: { skill_level: skillLevel }
+        });
+      }
 
       await fetchUserGames();
       setEditingGame(null);
@@ -173,11 +251,20 @@ export default function UserGameRegistration() {
       });
     } catch (error) {
       console.error('Error updating game:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update game.",
-        variant: "destructive",
-      });
+      
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0]?.message || "Invalid input data",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update game. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-// Remove duplicate import since it's already imported at the bottom of the imports
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Loader2 } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext"; // Assuming this exists from AdminDashboard
+import { useGames } from "@/hooks/useGames";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface Gamer {
   id: string;
@@ -26,29 +25,15 @@ interface Gamer {
 const Database = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGame, setSelectedGame] = useState<string>("all");
-  const [games, setGames] = useState<{ id: string; name: string }[]>([]);
   const [searchResults, setSearchResults] = useState<Gamer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalGamers, setTotalGamers] = useState(0);
 
-  // Fetch all available games on component mount
-  useEffect(() => {
-    const fetchGames = async () => {
-      const { data, error } = await supabase
-        .from("games")
-        .select("id, name")
-        .order("name");
-
-      if (error) {
-        console.error("Error fetching games:", error);
-        return;
-      }
-
-      setGames(data || []);
-    };
-
-    fetchGames();
-  }, []);
+  // Use custom hook for games data
+  const { games } = useGames(true);
+  
+  // Debounce search term to reduce API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Fetch total number of gamers
   useEffect(() => {
@@ -68,74 +53,62 @@ const Database = () => {
     fetchTotalGamers();
   }, []);
 
-  // Search gamers based on filters
+  // Optimized search with single query - fixes N+1 problem
   const searchGamers = async () => {
     setIsLoading(true);
 
     try {
-      // Base query to get gamers
-      let query = supabase.from("gamers").select(`
-        id, 
-        name, 
-        surname
-      `);
+      let query = supabase
+        .from("gamers")
+        .select(`
+          id, 
+          name, 
+          surname,
+          gamer_games(
+            game_id,
+            gamer_id_for_game,
+            games:game_id(id, name)
+          )
+        `);
 
       // Apply name search filter if provided
-      if (searchTerm) {
+      if (debouncedSearchTerm) {
         query = query.or(
-          `name.ilike.%${searchTerm}%,surname.ilike.%${searchTerm}%`
+          `name.ilike.%${debouncedSearchTerm}%,surname.ilike.%${debouncedSearchTerm}%`
         );
       }
 
-      // Execute the query
+      // Execute single optimized query
       const { data: gamersData, error: gamersError } = await query;
 
       if (gamersError) throw gamersError;
 
-      // If we have gamers and need to filter by game
-      if (gamersData && gamersData.length > 0) {
-        const gamersWithGames: Gamer[] = [];
+      // Filter and format results
+      const filteredGamers = gamersData
+        ?.map((gamer: any) => {
+          // Filter games by selected game if needed
+          const filteredGames = gamer.gamer_games?.filter((gg: any) => {
+            return selectedGame === "all" || !selectedGame || gg.game_id === selectedGame;
+          }) || [];
 
-        // For each gamer, fetch their games
-        for (const gamer of gamersData) {
-          let gamerGamesQuery = supabase
-            .from("gamer_games")
-            .select(`
-              game_id,
-              gamer_id_for_game,
-              games:game_id(id, name)
-            `)
-            .eq("gamer_id", gamer.id);
-
-          // If a game filter is applied (not "all")
-          if (selectedGame && selectedGame !== "all") {
-            gamerGamesQuery = gamerGamesQuery.eq("game_id", selectedGame);
+          // Only include gamer if they match game filter or no filter is applied
+          if (selectedGame === "all" || !selectedGame || filteredGames.length > 0) {
+            return {
+              id: gamer.id,
+              name: gamer.name,
+              surname: gamer.surname,
+              games: filteredGames.map((gg: any) => ({
+                id: gg.game_id,
+                name: gg.games?.name || "",
+                gamer_id_for_game: gg.gamer_id_for_game,
+              })),
+            };
           }
+          return null;
+        })
+        .filter(Boolean) || [];
 
-          const { data: gamerGames, error: gamerGamesError } = await gamerGamesQuery;
-
-          if (gamerGamesError) throw gamerGamesError;
-
-          // Only include gamers who have games matching the filter (if any)
-          if (selectedGame === "all" || !selectedGame || (gamerGames && gamerGames.length > 0)) {
-            // Format the games data
-            const formattedGames = gamerGames?.map((gg) => ({
-              id: gg.game_id,
-              name: gg.games?.name || "",
-              gamer_id_for_game: gg.gamer_id_for_game,
-            })) || [];
-
-            gamersWithGames.push({
-              ...gamer,
-              games: formattedGames,
-            });
-          }
-        }
-
-        setSearchResults(gamersWithGames);
-      } else {
-        setSearchResults([]);
-      }
+      setSearchResults(filteredGamers);
     } catch (error) {
       console.error("Error searching gamers:", error);
     } finally {
@@ -157,10 +130,13 @@ const Database = () => {
     searchGamers();
   };
 
-  // Load all gamers on component mount for preview
+  // Load gamers when debounced search term or game filter changes
   useEffect(() => {
     searchGamers();
-  }, []);
+  }, [debouncedSearchTerm, selectedGame]);
+
+  // Memoize available games for performance
+  const gameOptions = useMemo(() => games.map(game => ({ id: game.id, name: game.name })), [games]);
 
   return (
     <Layout>
@@ -201,7 +177,7 @@ const Database = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Games</SelectItem>
-                      {games.map((game) => (
+                      {gameOptions.map((game) => (
                         <SelectItem key={game.id} value={game.id}>
                           {game.name}
                         </SelectItem>

@@ -120,7 +120,7 @@ export default function UserProfileManager() {
 
       if (error) throw error;
 
-      // Log activity
+      // Log activity and batch data fetching for better performance
       await supabase.rpc('log_user_activity', {
         p_user_id: user.id,
         p_action: 'profile_updated',
@@ -129,8 +129,13 @@ export default function UserProfileManager() {
         p_details: validatedData
       });
 
-      await fetchProfile();
-      await fetchActivityLogs();
+      // Batch fetch profile and activity logs in parallel
+      await Promise.all([
+        fetchProfile(),
+        fetchActivityLogs()
+      ]);
+      
+      // Keep session refresh sequential as it may depend on profile update
       await refreshSession();
 
       toast({

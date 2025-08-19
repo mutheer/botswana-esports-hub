@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useGames } from '@/hooks/useGames';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +42,7 @@ const skillLevels = [
 
 export default function UserGameRegistration() {
   const { user } = useAuth();
-  const [games, setGames] = useState<Game[]>([]);
+  const { games } = useGames(true); // Use optimized hook for games
   const [userGames, setUserGames] = useState<UserGame[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedGame, setSelectedGame] = useState<string>('');
@@ -49,29 +50,8 @@ export default function UserGameRegistration() {
   const [skillLevel, setSkillLevel] = useState<string>('beginner');
   const [editingGame, setEditingGame] = useState<UserGame | null>(null);
 
-  useEffect(() => {
-    fetchGames();
-    if (user) {
-      fetchUserGames();
-    }
-  }, [user]);
-
-  const fetchGames = async () => {
-    const { data, error } = await supabase
-      .from('games')
-      .select('id, name, description, is_active')
-      .eq('is_active', true)
-      .order('name');
-
-    if (error) {
-      console.error('Error fetching games:', error);
-      return;
-    }
-
-    setGames(data || []);
-  };
-
-  const fetchUserGames = async () => {
+  // Memoize fetchUserGames to prevent unnecessary re-renders
+  const fetchUserGames = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -93,7 +73,14 @@ export default function UserGameRegistration() {
     }
 
     setUserGames(data || []);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserGames();
+    }
+  }, [user, fetchUserGames]);
+
 
   const handleRegisterGame = async () => {
     if (!user || !selectedGame) return;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -53,14 +53,8 @@ export default function UserEventRegistration() {
   const [notes, setNotes] = useState('');
   const [editingEvent, setEditingEvent] = useState<UserEvent | null>(null);
 
-  useEffect(() => {
-    fetchEvents();
-    if (user) {
-      fetchUserEvents();
-    }
-  }, [user]);
-
-  const fetchEvents = async () => {
+  // Memoize fetch functions for better performance
+  const fetchEvents = useCallback(async () => {
     const { data, error } = await supabase
       .from('events')
       .select('id, title, description, event_date, location, is_published')
@@ -74,9 +68,9 @@ export default function UserEventRegistration() {
     }
 
     setEvents(data || []);
-  };
+  }, []);
 
-  const fetchUserEvents = async () => {
+  const fetchUserEvents = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -99,7 +93,19 @@ export default function UserEventRegistration() {
     }
 
     setUserEvents(data || []);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    // Batch initial data loading
+    const loadInitialData = async () => {
+      await Promise.all([
+        fetchEvents(),
+        user ? fetchUserEvents() : Promise.resolve()
+      ]);
+    };
+    
+    loadInitialData();
+  }, [user, fetchEvents, fetchUserEvents]);
 
   const handleRegisterEvent = async () => {
     if (!user || !selectedEvent) return;

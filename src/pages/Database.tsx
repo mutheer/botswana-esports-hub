@@ -35,11 +35,11 @@ const Database = () => {
   // Debounce search term to reduce API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Fetch total number of gamers
+  // Fetch total number of gamers (from public directory)
   useEffect(() => {
     const fetchTotalGamers = async () => {
       const { count, error } = await supabase
-        .from("gamers")
+        .from("player_directory")
         .select("*", { count: "exact", head: true });
 
       if (error) {
@@ -53,62 +53,73 @@ const Database = () => {
     fetchTotalGamers();
   }, []);
 
-  // Optimized search with single query - fixes N+1 problem
+  // Secure search using player_directory view to protect sensitive data
   const searchGamers = async () => {
     setIsLoading(true);
 
     try {
-      let query = supabase
-        .from("gamers")
-        .select(`
-          id, 
-          name, 
-          surname,
-          gamer_games(
-            game_id,
-            gamer_id_for_game,
-            games:game_id(id, name)
-          )
-        `);
+      // First, get players from the secure public directory
+      let playersQuery = supabase.from("player_directory").select("id, name, surname");
 
       // Apply name search filter if provided
       if (debouncedSearchTerm) {
-        query = query.or(
+        playersQuery = playersQuery.or(
           `name.ilike.%${debouncedSearchTerm}%,surname.ilike.%${debouncedSearchTerm}%`
         );
       }
 
-      // Execute single optimized query
-      const { data: gamersData, error: gamersError } = await query;
+      const { data: playersData, error: playersError } = await playersQuery;
+      if (playersError) throw playersError;
 
-      if (gamersError) throw gamersError;
+      if (!playersData || playersData.length === 0) {
+        setSearchResults([]);
+        return;
+      }
 
-      // Filter and format results
-      const filteredGamers = gamersData
-        ?.map((gamer: any) => {
-          // Filter games by selected game if needed
-          const filteredGames = gamer.gamer_games?.filter((gg: any) => {
-            return selectedGame === "all" || !selectedGame || gg.game_id === selectedGame;
-          }) || [];
+      // Get player IDs
+      const playerIds = playersData.map(p => p.id);
 
-          // Only include gamer if they match game filter or no filter is applied
-          if (selectedGame === "all" || !selectedGame || filteredGames.length > 0) {
-            return {
-              id: gamer.id,
-              name: gamer.name,
-              surname: gamer.surname,
-              games: filteredGames.map((gg: any) => ({
-                id: gg.game_id,
-                name: gg.games?.name || "",
-                gamer_id_for_game: gg.gamer_id_for_game,
-              })),
-            };
-          }
-          return null;
-        })
-        .filter(Boolean) || [];
+      // Then get their games data
+      let gamesQuery = supabase
+        .from("gamer_games")
+        .select(`
+          gamer_id,
+          gamer_id_for_game,
+          game_id,
+          games:game_id(id, name)
+        `)
+        .in("gamer_id", playerIds);
 
-      setSearchResults(filteredGamers);
+      // Apply game filter if selected
+      if (selectedGame && selectedGame !== "all") {
+        gamesQuery = gamesQuery.eq("game_id", selectedGame);
+      }
+
+      const { data: gamesData, error: gamesError } = await gamesQuery;
+      if (gamesError) throw gamesError;
+
+      // Combine player and games data
+      const playersWithGames = playersData.map((player) => {
+        const playerGames = gamesData?.filter(g => g.gamer_id === player.id) || [];
+        
+        return {
+          id: player.id,
+          name: player.name,
+          surname: player.surname,
+          games: playerGames.map(g => ({
+            id: g.game_id,
+            name: g.games?.name || "",
+            gamer_id_for_game: g.gamer_id_for_game,
+          })),
+        };
+      });
+
+      // Filter out players with no games if a specific game is selected
+      const filteredResults = selectedGame && selectedGame !== "all" 
+        ? playersWithGames.filter(p => p.games.length > 0)
+        : playersWithGames;
+
+      setSearchResults(filteredResults);
     } catch (error) {
       console.error("Error searching gamers:", error);
     } finally {

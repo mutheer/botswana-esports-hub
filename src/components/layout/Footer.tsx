@@ -78,7 +78,7 @@ const Footer = () => {
             <ul className="space-y-3 sm:space-y-4">
               <li className="flex items-start space-x-3">
                 <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-background/80 text-sm sm:text-base break-all">botswanaesportsfedera@gmail.com</span>
+                <span className="text-background/80 text-sm sm:text-base break-words">botswanaesportsfedera@gmail.com</span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />

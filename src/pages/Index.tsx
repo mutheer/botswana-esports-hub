@@ -41,34 +41,34 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-16 bg-gradient-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <Users className="h-12 w-12 text-primary" />
+              <div className="flex justify-center mb-2 sm:mb-4">
+                <Users className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">20</h3>
-              <p className="text-muted-foreground">Active Members</p>
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1 sm:mb-2">20</h3>
+              <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">Active Members</p>
             </div>
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <GamepadIcon className="h-12 w-12 text-primary" />
+              <div className="flex justify-center mb-2 sm:mb-4">
+                <GamepadIcon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">9</h3>
-              <p className="text-muted-foreground">Supported Games</p>
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1 sm:mb-2">9</h3>
+              <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">Supported Games</p>
             </div>
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <Trophy className="h-12 w-12 text-primary" />
+              <div className="flex justify-center mb-2 sm:mb-4">
+                <Trophy className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">Oct 2024</h3>
-              <p className="text-muted-foreground">Officially Registered</p>
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1 sm:mb-2">Oct 2024</h3>
+              <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">Officially Registered</p>
             </div>
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <Calendar className="h-12 w-12 text-primary" />
+              <div className="flex justify-center mb-2 sm:mb-4">
+                <Calendar className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">2025</h3>
-              <p className="text-muted-foreground">First Tournament Year</p>
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1 sm:mb-2">2025</h3>
+              <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">First Tournament Year</p>
             </div>
           </div>
         </div>

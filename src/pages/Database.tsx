@@ -63,7 +63,7 @@ const Database = () => {
                 You must be logged in to view the Players directory.
               </p>
               <Button asChild>
-                <a href="/login">Sign In</a>
+                <a href="/auth">Sign In</a>
               </Button>
             </CardContent>
           </Card>

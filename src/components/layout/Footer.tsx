@@ -1,27 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
-  const { toast } = useToast();
   const { isAuthenticated } = useAuth();
-
-  const handleNewsletterSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    
-    // Newsletter signup functionality would go here
-    toast({
-      title: "Thank you for subscribing!",
-      description: "You'll receive updates about Botswana esports.",
-    });
-    setEmail("");
-  };
 
   return (
     <footer className="bg-foreground text-background">
@@ -38,17 +21,17 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
-                <a href="https://facebook.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.facebook.com/profile.php?id=61565692832196" target="_blank" rel="noopener noreferrer">
                   <Facebook className="h-5 w-5" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
-                <a href="https://twitter.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.tiktok.com/@botswana.esport.p?_t=ZM-8y4e3diPRun&_r=1" target="_blank" rel="noopener noreferrer">
                   <Twitter className="h-5 w-5" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" className="text-background hover:text-primary" asChild>
-                <a href="https://instagram.com/besfbotswana" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.instagram.com/esportsfed_bw/" target="_blank" rel="noopener noreferrer">
                   <Instagram className="h-5 w-5" />
                 </a>
               </Button>
@@ -90,11 +73,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-primary" />
-                <span className="text-background/80 text-sm">info@besf.co.bw</span>
+                <span className="text-background/80 text-sm">botswanaesportsfedera@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <span className="text-background/80 text-sm">+267 123 4567</span>
+                <span className="text-background/80 text-sm">+267 74152137</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-primary" />
@@ -103,25 +86,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Newsletter Signup */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Newsletter</h3>
-            <p className="text-background/80 text-sm mb-4">
-              Get updates on tournaments and esports news in Botswana.
-            </p>
-            <form onSubmit={handleNewsletterSignup} className="space-y-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-background/10 border-background/20 text-background placeholder:text-background/60"
-              />
-              <Button type="submit" variant="hero" size="sm" className="w-full">
-                Subscribe
-              </Button>
-            </form>
-          </div>
+
         </div>
 
         <div className="mt-8 pt-8 border-t border-background/20">

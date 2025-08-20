@@ -19,11 +19,11 @@ const Index = () => {
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-background">
             Join Botswana's
             <span className="block bg-gradient-primary bg-clip-text text-transparent">
-              Gaming Community
+              Esports Future
             </span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-background/90 max-w-2xl mx-auto">
-            Register as a gamer with BESF and connect with 500+ players. Get discovered for tournaments, find teams, and represent Botswana in esports.
+            Be part of the official launch of Botswana Electronic Sports Federation. Register as a gamer and help us build the nation's first organized esports community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="lg" asChild>
@@ -46,8 +46,8 @@ const Index = () => {
               <div className="flex justify-center mb-4">
                 <Users className="h-12 w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">500+</h3>
-              <p className="text-muted-foreground">Registered Gamers</p>
+              <h3 className="text-3xl font-bold text-foreground mb-2">20</h3>
+              <p className="text-muted-foreground">Active Members</p>
             </div>
             <div className="text-center">
               <div className="flex justify-center mb-4">
@@ -60,15 +60,15 @@ const Index = () => {
               <div className="flex justify-center mb-4">
                 <Trophy className="h-12 w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">25+</h3>
-              <p className="text-muted-foreground">Tournaments Hosted</p>
+              <h3 className="text-3xl font-bold text-foreground mb-2">Oct 2024</h3>
+              <p className="text-muted-foreground">Officially Registered</p>
             </div>
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <Calendar className="h-12 w-12 text-primary" />
               </div>
-              <h3 className="text-3xl font-bold text-foreground mb-2">12</h3>
-              <p className="text-muted-foreground">Monthly Events</p>
+              <h3 className="text-3xl font-bold text-foreground mb-2">2025</h3>
+              <p className="text-muted-foreground">First Tournament Year</p>
             </div>
           </div>
         </div>
@@ -78,38 +78,38 @@ const Index = () => {
       <section className="py-16 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Register as a Gamer?</h2>
-            <p className="text-xl text-muted-foreground">Join Botswana's official gaming database and unlock opportunities</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Join the Foundation?</h2>
+            <p className="text-xl text-muted-foreground">Be a founding member of Botswana's esports revolution</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <Card className="text-center shadow-card hover:shadow-elegant transition-spring">
               <CardHeader>
                 <Trophy className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Tournament Invites</CardTitle>
+                <CardTitle>Founding Member Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Get direct invitations to official tournaments and competitions based on your game preferences and skill level.</p>
+                <p className="text-muted-foreground">Be recognized as a founding member of BESF when we officially launch. Help shape the future of esports in Botswana.</p>
               </CardContent>
             </Card>
             
             <Card className="text-center shadow-card hover:shadow-elegant transition-spring">
               <CardHeader>
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Find Your Team</CardTitle>
+                <CardTitle>Future Tournament Priority</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Connect with other gamers in your area, form teams, and participate in team-based competitions.</p>
+                <p className="text-muted-foreground">Get priority registration for our upcoming tournaments and events when we launch our competitive programs in 2025.</p>
               </CardContent>
             </Card>
             
             <Card className="text-center shadow-card hover:shadow-elegant transition-spring">
               <CardHeader>
                 <Star className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Official Recognition</CardTitle>
+                <CardTitle>Global Representation</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Be part of Botswana's official esports database and represent the country in international competitions.</p>
+                <p className="text-muted-foreground">Represent Botswana in international competitions through our partnerships with IESF and Global Esports Federation.</p>
               </CardContent>
             </Card>
           </div>
@@ -117,7 +117,7 @@ const Index = () => {
           <div className="text-center">
             <Button variant="gaming" size="lg" asChild>
               <Link to="/register">
-                Join 500+ Registered Gamers <ArrowRight className="ml-2 h-5 w-5" />
+                Become a Founding Member <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
@@ -128,25 +128,25 @@ const Index = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Latest News & Events</h2>
-            <p className="text-xl text-muted-foreground">Stay updated with the latest happenings in Botswana esports</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Foundation Updates</h2>
+            <p className="text-xl text-muted-foreground">Latest news from BESF as we prepare for our official launch</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Featured Event Card */}
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader>
-                <Badge className="w-fit mb-2 bg-gaming-accent text-white">Upcoming Event</Badge>
-                <CardTitle>VALORANT Championship 2024</CardTitle>
+                <Badge className="w-fit mb-2 bg-gaming-accent text-white">Coming Soon</Badge>
+                <CardTitle>Official BESF Launch Event</CardTitle>
                 <CardDescription>
-                  Join Botswana's biggest VALORANT tournament with a prize pool of P50,000
+                  Join us for the official launch of Botswana Electronic Sports Federation in 2025
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">December 15, 2024</span>
+                  <span className="text-sm text-muted-foreground">Early 2025</span>
                   <Button variant="gaming" size="sm" asChild>
-                    <Link to="/events">Register</Link>
+                    <Link to="/events">Learn More</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -156,14 +156,14 @@ const Index = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader>
                 <Badge className="w-fit mb-2 bg-primary text-primary-foreground">News</Badge>
-                <CardTitle>BESF Partners with IESF</CardTitle>
+                <CardTitle>BESF Joins International Bodies</CardTitle>
                 <CardDescription>
-                  Botswana officially joins the International Esports Federation
+                  Botswana officially affiliated with IESF and Global Esports Federation
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">3 days ago</span>
+                  <span className="text-sm text-muted-foreground">October 2024</span>
                   <Button variant="outline" size="sm" asChild>
                     <Link to="/news">Read More</Link>
                   </Button>
@@ -171,20 +171,20 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            {/* Success Story Card */}
+            {/* Foundation Story Card */}
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader>
-                <Badge className="w-fit mb-2 bg-success text-white">Success Story</Badge>
-                <CardTitle>Botswana Team Wins Regional</CardTitle>
+                <Badge className="w-fit mb-2 bg-success text-white">Foundation</Badge>
+                <CardTitle>Building Botswana's Esports Future</CardTitle>
                 <CardDescription>
-                  Local CS:GO team "Desert Eagles" claims victory in SADC Championship
+                  Learn about our mission to promote youth empowerment through gaming
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">1 week ago</span>
+                  <span className="text-sm text-muted-foreground">Our Vision</span>
                   <Button variant="outline" size="sm" asChild>
-                    <Link to="/news">Learn More</Link>
+                    <Link to="/about">Learn More</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -197,22 +197,22 @@ const Index = () => {
       <section className="py-16 bg-gradient-hero">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-background">
-            Ready to Level Up Your Gaming?
+            Ready to Shape Botswana's Esports Future?
           </h2>
           <p className="text-xl mb-8 text-background/90">
-            Join Botswana's official gaming community. Register your games, connect with players, and compete in tournaments.
+            Join BESF as a founding member and help us build the nation's first organized esports ecosystem. Register your games and be part of history.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="hero" size="lg" className="bg-background text-primary hover:bg-background/90" asChild>
               <Link to="/register">
                 <GamepadIcon className="mr-2 h-5 w-5" />
-                Register Your Games
+                Become a Founding Member
               </Link>
             </Button>
             <Button variant="outline" size="lg" className="bg-background/10 border-background/30 text-background hover:bg-background/20" asChild>
               <Link to="/database">
                 <Users className="mr-2 h-5 w-5" />
-                View Gamer Database
+                View Member Directory
               </Link>
             </Button>
           </div>

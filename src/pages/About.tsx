@@ -33,10 +33,11 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  To promote and develop esports in Botswana by creating opportunities for 
-                  gamers to compete, learn, and excel. We strive to build a thriving esports 
-                  ecosystem that nurtures talent, promotes inclusivity, and positions 
-                  Botswana as a competitive force in the global esports arena.
+                  The mission of BESF is to promote, regulate, and support the development of esports in Botswana. 
+                  We raise national awareness about the opportunities within the esports industry, foster partnerships 
+                  that enhance digital literacy and skills among Botswana's youth, create structured pathways for careers 
+                  in esports and related digital fields, and ensure inclusivity, fair play, and national representation 
+                  in regional and global esports events.
                 </p>
               </CardContent>
             </Card>
@@ -50,10 +51,8 @@ const About = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  To establish Botswana as an esports hub in Africa, where gaming talent 
-                  is recognized, supported, and celebrated. We envision a future where 
-                  Botswanan gamers compete on the world stage and inspire the next 
-                  generation of esports athletes.
+                  To be the leading catalyst for the growth, professionalization, and recognition of esports 
+                  in Botswana, while promoting youth empowerment, digital inclusion, and innovation through gaming.
                 </p>
               </CardContent>
             </Card>
@@ -65,9 +64,9 @@ const About = () => {
       <section className="py-16 bg-gradient-card">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Story</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Foundation Story</h2>
             <p className="text-xl text-muted-foreground">
-              The journey of esports development in Botswana
+              The establishment of Botswana's first esports federation
             </p>
           </div>
 
@@ -75,13 +74,14 @@ const About = () => {
             <Card className="shadow-card">
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-primary text-primary-foreground mt-1">2024</Badge>
+                  <Badge className="bg-primary text-primary-foreground mt-1">Oct 2024</Badge>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">IESF Membership</h3>
+                    <h3 className="text-xl font-semibold mb-2">Official Registration</h3>
                     <p className="text-muted-foreground">
-                      Botswana Electronic Sports Federation officially joins the International 
-                      Esports Federation (IESF), marking our entry into the global esports community 
-                      and opening doors for international competition opportunities.
+                      Botswana Electronic Sports Federation was officially registered as the national 
+                      governing body for esports development and promotion in Botswana. The federation 
+                      was formed with a 7-member Executive Committee and 20 founding members, committed 
+                      to building a structured and inclusive esports ecosystem.
                     </p>
                   </div>
                 </div>
@@ -91,14 +91,13 @@ const About = () => {
             <Card className="shadow-card">
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-gaming-accent text-white mt-1">2023</Badge>
+                  <Badge className="bg-gaming-accent text-white mt-1">2024</Badge>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Foundation</h3>
+                    <h3 className="text-xl font-semibold mb-2">International Affiliations</h3>
                     <p className="text-muted-foreground">
-                      BESF was established by passionate gamers and industry professionals who 
-                      recognized the need for organized esports development in Botswana. Our 
-                      founders came together with a shared vision of creating a professional 
-                      gaming ecosystem.
+                      BESF established official partnerships with the International Esports Federation 
+                      (IESF) and Global Esports Federation (GEF), positioning Botswana within the global 
+                      esports community and opening pathways for international competition and representation.
                     </p>
                   </div>
                 </div>
@@ -108,13 +107,13 @@ const About = () => {
             <Card className="shadow-card">
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <Badge className="bg-success text-white mt-1">2022</Badge>
+                  <Badge className="bg-success text-white mt-1">2025</Badge>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Community Growth</h3>
+                    <h3 className="text-xl font-semibold mb-2">Launch Preparation</h3>
                     <p className="text-muted-foreground">
-                      The esports community in Botswana began to take shape with the formation 
-                      of competitive teams and the organization of local tournaments. This 
-                      grassroots movement laid the foundation for what would become BESF.
+                      BESF is preparing for its official launch event, which will introduce the federation 
+                      to stakeholders and the public, while establishing partnerships with government bodies 
+                      including the Botswana National Sports Commission and Ministry of Education.
                     </p>
                   </div>
                 </div>
@@ -128,9 +127,9 @@ const About = () => {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What We Do</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Future Programs</h2>
             <p className="text-xl text-muted-foreground">
-              Our key initiatives and activities
+              Planned initiatives for Botswana's esports development
             </p>
           </div>
 
@@ -138,12 +137,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Trophy className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Tournaments & Events</CardTitle>
+                <CardTitle>Official Launch Event</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Organize and host competitive tournaments across multiple gaming titles, 
-                  providing platforms for gamers to showcase their skills and compete for prizes.
+                  Host BESF's official launch to introduce the federation, share our vision, 
+                  and engage stakeholders in building Botswana's esports future.
                 </p>
               </CardContent>
             </Card>
@@ -151,12 +150,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Community Building</CardTitle>
+                <CardTitle>Youth Development</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Foster connections between gamers, create networking opportunities, and 
-                  build a supportive community that helps players grow and develop their skills.
+                  Target Botswana's 450,000 young people aged 10-24 with digital skills training, 
+                  esports education, and career pathway development programs.
                 </p>
               </CardContent>
             </Card>
@@ -164,12 +163,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Globe className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>International Representation</CardTitle>
+                <CardTitle>International Competition</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Represent Botswana in international esports competitions and work with 
-                  global organizations to promote Botswanan talent on the world stage.
+                  Represent Botswana in global esports competitions through our partnerships 
+                  with IESF and Global Esports Federation.
                 </p>
               </CardContent>
             </Card>
@@ -177,12 +176,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Zap className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Player Development</CardTitle>
+                <CardTitle>National Recognition</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Provide training programs, coaching opportunities, and resources to help 
-                  gamers improve their skills and reach their competitive potential.
+                  Work with government bodies including BNSC, BOC, and various ministries 
+                  to establish esports as a recognized sport in Botswana.
                 </p>
               </CardContent>
             </Card>
@@ -190,12 +189,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Industry Partnerships</CardTitle>
+                <CardTitle>Educational Partnerships</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Build relationships with gaming companies, sponsors, and other stakeholders 
-                  to create opportunities and support for the esports ecosystem.
+                  Collaborate with schools and tertiary institutions to introduce esports 
+                  clubs, digital literacy programs, and gaming-based STEM education.
                 </p>
               </CardContent>
             </Card>
@@ -203,12 +202,12 @@ const About = () => {
             <Card className="shadow-card hover:shadow-elegant transition-spring hover:scale-105">
               <CardHeader className="text-center">
                 <Globe className="h-12 w-12 text-primary mx-auto mb-4" />
-                <CardTitle>Advocacy & Recognition</CardTitle>
+                <CardTitle>Career Development</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground text-center">
-                  Advocate for esports recognition as a legitimate sport and work to establish 
-                  policies and frameworks that support the industry's growth in Botswana.
+                  Create opportunities in esports roles including professional gaming, coaching, 
+                  shoutcasting, content creation, and game development.
                 </p>
               </CardContent>
             </Card>

@@ -126,5 +126,46 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Responsive Typography */
+  h1 {
+    @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold leading-tight;
+  }
+
+  h3 {
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold leading-tight;
+  }
+
+  h4 {
+    @apply text-base sm:text-lg lg:text-xl font-medium leading-tight;
+  }
+
+  h5 {
+    @apply text-sm sm:text-base lg:text-lg font-medium leading-tight;
+  }
+
+  h6 {
+    @apply text-sm sm:text-base font-medium leading-tight;
+  }
+
+  p {
+    @apply text-sm sm:text-base leading-relaxed;
+  }
+
+  /* Touch-friendly interactive elements */
+  button, a, input, select, textarea {
+    @apply touch-manipulation;
+  }
+
+  /* Improved focus states for accessibility */
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
   }
 }

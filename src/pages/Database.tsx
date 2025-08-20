@@ -5,16 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Lock } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useGames } from "@/hooks/useGames";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface Gamer {
+interface Player {
   id: string;
-  name: string;
-  surname: string;
+  gamer_tag: string;
   games: {
     id: string;
     name: string;
@@ -23,11 +23,12 @@ interface Gamer {
 }
 
 const Database = () => {
+  const { user, isLoading: loading } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGame, setSelectedGame] = useState<string>("all");
-  const [searchResults, setSearchResults] = useState<Gamer[]>([]);
+  const [searchResults, setSearchResults] = useState<Player[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalGamers, setTotalGamers] = useState(0);
+  const [totalPlayers, setTotalPlayers] = useState(0);
 
   // Use custom hook for games data
   const { games } = useGames(true);
@@ -35,93 +36,136 @@ const Database = () => {
   // Debounce search term to reduce API calls
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // Fetch total number of gamers (from public directory)
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8 px-4 text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8 px-4">
+          <Card className="max-w-md mx-auto">
+            <CardContent className="text-center py-12">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+              <p className="text-muted-foreground mb-4">
+                You must be logged in to view the Players directory.
+              </p>
+              <Button asChild>
+                <a href="/login">Sign In</a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Fetch total number of players (from user_games)
   useEffect(() => {
-    const fetchTotalGamers = async () => {
+    const fetchTotalPlayers = async () => {
       const { count, error } = await supabase
-        .from("player_directory")
-        .select("*", { count: "exact", head: true });
+        .from("user_games")
+        .select("user_id", { count: "exact", head: true });
 
       if (error) {
-        console.error("Error fetching total gamers:", error);
+        console.error("Error fetching total players:", error);
         return;
       }
 
-      setTotalGamers(count || 0);
+      // Count unique users
+      const { data: uniqueUsers } = await supabase
+        .from("user_games")
+        .select("user_id", { count: "exact" })
+        .not("user_id", "is", null);
+
+      setTotalPlayers(uniqueUsers?.length || 0);
     };
 
-    fetchTotalGamers();
+    fetchTotalPlayers();
   }, []);
 
-  // Secure search using player_directory view to protect sensitive data
-  const searchGamers = async () => {
+  // Secure search using user_games to show only gamer tags
+  const searchPlayers = async () => {
     setIsLoading(true);
 
     try {
-      // First, get players from the secure public directory
-      let playersQuery = supabase.from("player_directory").select("id, name, surname");
+      // Get user games with profiles for gamer tags
+      let userGamesQuery = supabase
+        .from("user_games")
+        .select(`
+          user_id,
+          gamer_tag,
+          game_id,
+          games:game_id(id, name),
+          profiles:user_id(username)
+        `)
+        .not("gamer_tag", "is", null)
+        .eq("is_active", true);
 
-      // Apply name search filter if provided
-      if (debouncedSearchTerm) {
-        playersQuery = playersQuery.or(
-          `name.ilike.%${debouncedSearchTerm}%,surname.ilike.%${debouncedSearchTerm}%`
-        );
+      // Apply game filter if selected
+      if (selectedGame && selectedGame !== "all") {
+        userGamesQuery = userGamesQuery.eq("game_id", selectedGame);
       }
 
-      const { data: playersData, error: playersError } = await playersQuery;
-      if (playersError) throw playersError;
+      const { data: userGamesData, error: userGamesError } = await userGamesQuery;
+      if (userGamesError) throw userGamesError;
 
-      if (!playersData || playersData.length === 0) {
+      if (!userGamesData || userGamesData.length === 0) {
         setSearchResults([]);
         return;
       }
 
-      // Get player IDs
-      const playerIds = playersData.map(p => p.id);
+      // Group by user and create player objects with gamer tags
+      const playersMap = new Map<string, Player>();
 
-      // Then get their games data
-      let gamesQuery = supabase
-        .from("gamer_games")
-        .select(`
-          gamer_id,
-          gamer_id_for_game,
-          game_id,
-          games:game_id(id, name)
-        `)
-        .in("gamer_id", playerIds);
-
-      // Apply game filter if selected
-      if (selectedGame && selectedGame !== "all") {
-        gamesQuery = gamesQuery.eq("game_id", selectedGame);
-      }
-
-      const { data: gamesData, error: gamesError } = await gamesQuery;
-      if (gamesError) throw gamesError;
-
-      // Combine player and games data
-      const playersWithGames = playersData.map((player) => {
-        const playerGames = gamesData?.filter(g => g.gamer_id === player.id) || [];
+      userGamesData.forEach((userGame) => {
+        const userId = userGame.user_id;
+        const primaryGamerTag = userGame.gamer_tag || (userGame.profiles as any)?.username || "Anonymous";
         
-        return {
-          id: player.id,
-          name: player.name,
-          surname: player.surname,
-          games: playerGames.map(g => ({
-            id: g.game_id,
-            name: g.games?.name || "",
-            gamer_id_for_game: g.gamer_id_for_game,
-          })),
-        };
+        if (!playersMap.has(userId)) {
+          playersMap.set(userId, {
+            id: userId,
+            gamer_tag: primaryGamerTag,
+            games: []
+          });
+        }
+
+        const player = playersMap.get(userId)!;
+        player.games.push({
+          id: userGame.game_id,
+          name: userGame.games?.name || "",
+          gamer_id_for_game: userGame.gamer_tag || ""
+        });
       });
 
-      // Filter out players with no games if a specific game is selected
-      const filteredResults = selectedGame && selectedGame !== "all" 
-        ? playersWithGames.filter(p => p.games.length > 0)
-        : playersWithGames;
+      let results = Array.from(playersMap.values());
 
-      setSearchResults(filteredResults);
+      // Apply search filter if provided
+      if (debouncedSearchTerm) {
+        results = results.filter(player => 
+          player.gamer_tag.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          player.games.some(game => 
+            game.gamer_id_for_game.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            game.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+          )
+        );
+      }
+
+      setSearchResults(results);
     } catch (error) {
-      console.error("Error searching gamers:", error);
+      console.error("Error searching players:", error);
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +174,7 @@ const Database = () => {
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    searchGamers();
+    searchPlayers();
   };
 
   // Clear all filters
@@ -138,12 +182,12 @@ const Database = () => {
     setSearchTerm("");
     setSelectedGame("all");
     setSearchResults([]);
-    searchGamers();
+    searchPlayers();
   };
 
-  // Load gamers when debounced search term or game filter changes
+  // Load players when debounced search term or game filter changes
   useEffect(() => {
-    searchGamers();
+    searchPlayers();
   }, [debouncedSearchTerm, selectedGame]);
 
   // Memoize available games for performance
@@ -155,7 +199,7 @@ const Database = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Player Database</h1>
           <p className="text-muted-foreground">
-            Search and discover players in our community. Total players: {totalGamers}
+            Search and discover players in our community. Total players: {totalPlayers}
           </p>
         </div>
 
@@ -167,7 +211,7 @@ const Database = () => {
               Search Players
             </CardTitle>
             <CardDescription>
-              Find players by name or filter by the games they play
+              Find players by gamer tag or filter by the games they play
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -175,7 +219,7 @@ const Database = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Input
-                    placeholder="Search by name or surname..."
+                    placeholder="Search by gamer tag or game..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full"
@@ -229,19 +273,19 @@ const Database = () => {
                 </h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {searchResults.map((gamer) => (
-                  <Card key={gamer.id} className="group hover:shadow-lg transition-all duration-200">
+                {searchResults.map((player) => (
+                  <Card key={player.id} className="group hover:shadow-lg transition-all duration-200">
                     <CardContent className="p-6">
                       <div className="space-y-4">
                         {/* Player Info */}
                         <div className="text-center">
                           <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/60 rounded-full flex items-center justify-center mx-auto mb-3">
                             <span className="text-xl font-bold text-primary-foreground">
-                              {gamer.name.charAt(0)}{gamer.surname.charAt(0)}
+                              {player.gamer_tag.charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <h3 className="text-lg font-semibold text-foreground">
-                            {gamer.name} {gamer.surname}
+                            {player.gamer_tag}
                           </h3>
                         </div>
 
@@ -252,13 +296,13 @@ const Database = () => {
                               Games Played
                             </span>
                             <Badge variant="secondary" className="text-xs">
-                              {gamer.games.length}
+                              {player.games.length}
                             </Badge>
                           </div>
                           
-                          {gamer.games.length > 0 ? (
+                          {player.games.length > 0 ? (
                             <div className="space-y-2">
-                              {gamer.games.slice(0, 3).map((game) => (
+                              {player.games.slice(0, 3).map((game) => (
                                 <div key={game.id} className="flex items-center justify-between p-2 bg-accent/50 rounded-lg">
                                   <span className="text-sm font-medium text-foreground">
                                     {game.name}
@@ -270,10 +314,10 @@ const Database = () => {
                                   )}
                                 </div>
                               ))}
-                              {gamer.games.length > 3 && (
+                              {player.games.length > 3 && (
                                 <div className="text-center">
                                   <Badge variant="outline" className="text-xs">
-                                    +{gamer.games.length - 3} more
+                                    +{player.games.length - 3} more
                                   </Badge>
                                 </div>
                               )}

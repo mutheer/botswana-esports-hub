@@ -10,9 +10,34 @@ export default {
 	],
 	prefix: "",
 	theme: {
+		screens: {
+			'xs': '475px',
+			'sm': '640px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1536px',
+			'3xl': '1920px',
+			// Device-specific breakpoints
+			'mobile': {'max': '767px'},
+			'tablet': {'min': '768px', 'max': '1023px'},
+			'desktop': {'min': '1024px'},
+			// Orientation-based breakpoints
+			'portrait': {'raw': '(orientation: portrait)'},
+			'landscape': {'raw': '(orientation: landscape)'},
+			// Touch device detection
+			'touch': {'raw': '(hover: none) and (pointer: coarse)'},
+			'no-touch': {'raw': '(hover: hover) and (pointer: fine)'}
+		},
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				lg: '2rem',
+				xl: '2.5rem',
+				'2xl': '3rem'
+			},
 			screens: {
 				'2xl': '1400px'
 			}

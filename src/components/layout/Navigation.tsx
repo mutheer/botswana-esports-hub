@@ -13,7 +13,7 @@ const Navigation = () => {
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
     { name: "Register", href: "/register" },
-    { name: "Database", href: "/database" },
+    { name: "Players", href: "/database" },
     { name: "Games", href: "/games" },
     { name: "Events", href: "/events" },
     { name: "News", href: "/news" },
@@ -29,20 +29,20 @@ const Navigation = () => {
 
   return (
     <nav className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <img src="/logo.svg" alt="BESF Logo" className="h-10 w-10" />
-              <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
+            <Link to="/" className="flex items-center space-x-2 py-2">
+              <img src="/logo.svg" alt="BESF Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
+              <span className="font-bold text-lg sm:text-xl bg-gradient-primary bg-clip-text text-transparent">
                 BESF
               </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navigationItems.map((item) => (
               <Link
                 key={item.name}
@@ -85,59 +85,68 @@ const Navigation = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="lg:hidden flex items-center">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
+              className="h-10 w-10 touch-manipulation"
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
             </Button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-card rounded-lg shadow-card mt-2">
+          <div className="lg:hidden">
+            <div className="px-3 pt-3 pb-4 space-y-2 sm:px-4 bg-card rounded-lg shadow-card mt-2 mx-3 sm:mx-0">
               {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-smooth ${
+                  className={`block px-4 py-3 rounded-md text-base font-medium transition-smooth touch-manipulation ${
                     isActive(item.href)
                       ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent active:bg-accent/80"
                   }`}
                   onClick={() => setIsOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="px-3 py-2">
+              <div className="px-4 py-3 border-t border-border/50 mt-3">
                 {isAuthenticated ? (
-                  <div className="space-y-2">
-                    <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
-                      <Link to="/profile" className="flex items-center space-x-2">
-                        <User className="h-4 w-4" />
+                  <div className="space-y-3">
+                    <Button variant="ghost" size="sm" className="w-full justify-start h-11 touch-manipulation" asChild>
+                      <Link to="/profile" className="flex items-center space-x-3">
+                        <User className="h-5 w-5" />
                         <span>Profile</span>
                       </Link>
                     </Button>
+                    {isAdmin && (
+                      <Button variant="ghost" size="sm" className="w-full justify-start h-11 touch-manipulation" asChild>
+                        <Link to="/admin" className="flex items-center space-x-3">
+                          <Shield className="h-5 w-5" />
+                          <span>Admin</span>
+                        </Link>
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="w-full justify-start" 
+                      className="w-full justify-start h-11 touch-manipulation" 
                       onClick={() => {
                         signOut();
                         setIsOpen(false);
                       }}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-5 w-5 mr-3" />
                       <span>Logout</span>
                     </Button>
                   </div>
                 ) : (
-                  <Button variant="hero" size="sm" className="w-full" asChild>
+                  <Button variant="hero" size="sm" className="w-full h-11 touch-manipulation" asChild>
                     <Link to="/auth">Login</Link>
                   </Button>
                 )}

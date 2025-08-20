@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -151,6 +151,13 @@ export type Database = {
             columns: ["gamer_id"]
             isOneToOne: false
             referencedRelation: "gamers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gamer_games_gamer_id_fkey"
+            columns: ["gamer_id"]
+            isOneToOne: false
+            referencedRelation: "player_directory"
             referencedColumns: ["id"]
           },
         ]
@@ -374,7 +381,27 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      player_directory: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          name: string | null
+          surname: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          surname?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          surname?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {
@@ -387,18 +414,18 @@ export type Database = {
       }
       log_user_activity: {
         Args: {
-          p_user_id: string
           p_action: string
-          p_resource_type: string
-          p_resource_id?: string
           p_details?: Json
+          p_resource_id?: string
+          p_resource_type: string
+          p_user_id: string
         }
         Returns: string
       }
       update_user_role: {
         Args: {
-          target_user_id: string
           new_role: Database["public"]["Enums"]["user_role"]
+          target_user_id: string
         }
         Returns: boolean
       }
